@@ -180,4 +180,4 @@ describe(resamplex)
 ```
 
 ## Conclusion
-The bootstrap method can be used to create a sample distribution from small data sets that approximates a normal sample from the original population , demonstrating the central limit theorem.
+# The bootstrap method can be used to create a sample distribution from small data sets that approximates a normal sample from the original population , demonstrating the central limit theorem.
