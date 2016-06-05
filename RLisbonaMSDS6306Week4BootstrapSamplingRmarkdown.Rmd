@@ -1,0 +1,183 @@
+---
+title: "RLisbonaMSDS6306_Week4_BootstrapSampling"
+author: "Randy Lisbona"
+date: "June 4, 2016"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+require("boot")
+require("psych")
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Create the normal and exponential sample datasets
+
+Use rnorm and rexp to create some sample datasets
+
+```{r Samplesets,echo = FALSE}
+Normal.dataset.n30mu10s1 <- rnorm(30,10,1)
+Normal.dataset.n10mu10s1 <- rnorm(10,10,1)
+Normal.dataset.n30mu15s1 <- rnorm(30,15,1)
+
+Exponential.dataset.n30lambda1.0 <- rexp(30,1)
+Exponential.dataset.n10lambda1.0 <- rexp(10,1)
+#Exponential.dataset.n30lambda0.25 <- rexp(30,.25)
+```
+## Print the datasets, inlcude the first 10 records from each dataset
+```{r printheader,echo = FALSE}
+head(Normal.dataset.n30mu10s1, n= 10)
+head(Normal.dataset.n10mu10s1, n= 10) 
+#head(Normal.dataset.n30mu15s1, n= 10) 
+
+head(Exponential.dataset.n30lambda1.0, n= 10) 
+head(Exponential.dataset.n10lambda1.0, n= 10)
+#head(Exponential.dataset.n30lambda0.5, n= 10) 
+
+```
+
+## Explore the data with Plot of the normal and exponential sample datasets
+
+Use plot and hist to compare the datasets
+set x and y limits to make it easier to compare plots
+
+```{r plotsunsorted,echo = FALSE}
+
+par(mfrow=c(4,2),mar=c(1,1,1,1))
+
+plot(Normal.dataset.n30mu10s1,xlim=c(0,30), ylim=c(0,30), main="Normal Dist, n=30, mu=10, sd=1")
+plot(Exponential.dataset.n30lambda1.0,xlim=c(0,30), ylim=c(0,30), main="Exp Dist, n=30, lambda = 1")
+
+plot(Normal.dataset.n10mu10s1,xlim=c(0,30), ylim=c(0,30), main="Normal Dist, n=10, mu=10, sd=1")
+plot(Exponential.dataset.n10lambda1.0,xlim=c(0,30), ylim=c(0,30), main="Exp Dist, n=10, lambda = 1")
+
+#plot(Normal.dataset.n30mu15s1,xlim=c(0,30), ylim=c(0,30), main="Normal Dist, n=30, mu=15, sd=1")
+#plot(Exponential.dataset.n30lambda0.25,xlim=c(0,30), ylim=c(0,30), main="Exp Dist, n=30, lambda = 0.25")
+```
+
+## Sort the records ascending and plot again. Include histograms
+set x and y limits to make it easier to compare plots
+
+```{r sorted,echo = FALSE}
+
+par(mfrow=c(4,2),mar=c(1,1,1,1))
+
+plot(sort(Normal.dataset.n30mu10s1), xlim=c(0,30), ylim=c(0,30), main="Normal Dist, n=30, mu=10, sd=1")
+hist(Normal.dataset.n30mu10s1,breaks = 10,xlim=c(0,30), main="Normal Dist, n=30, mu=10, sd=1")
+
+plot(sort(Normal.dataset.n10mu10s1), ylim=c(0,30), main="Normal Dist, n=10, mu=10, sd=1")
+hist(Normal.dataset.n10mu10s1,breaks = 10,xlim=c(0,30), main="Normal Dist, n=10, mu=10, sd=1")
+
+#plot(sort(Normal.dataset.n30mu15s1), ylim=c(0,30), main="Normal Dist, n=30, mu=15, sd=1")
+#hist(Normal.dataset.n30mu15s1,breaks = 10,xlim=c(0,30), main="Normal Dist, n=30, mu=15, sd=1")
+
+plot(sort(Exponential.dataset.n30lambda1.0), ylim=c(0,30), main="Exp Dist, n=30, lambda = 1")
+hist(Exponential.dataset.n30lambda1.0,breaks = 10,xlim=c(0,30), ylim=c(0,10), main="Exp Dist, n=30, lambda = 1")
+
+plot(sort(Exponential.dataset.n10lambda1.0), ylim=c(0,30), main="Exp Dist, n=10, lambda = 1.0")
+hist(Exponential.dataset.n10lambda1.0,breaks = 10, xlim=c(0,30),ylim=c(0,10), main="Exp Dist, n=10, lambda = 1")
+
+#plot(sort(Exponential.dataset.n30lambda0.25), ylim=c(0,30), main="Exp Dist, n=30, lambda = 0.25")
+#hist(Exponential.dataset.n30lambda0.25,breaks=10, xlim=c(0,30),ylim=c(0,10), main="Exp Dist, n=30, lambda = 0.25")
+
+```
+## Resample the datasets, compare original histogram to resampled histogram
+# notice that the resampled histograms closely resemble a normal distribution, illustrating the central limit theorem
+
+```{r resample ,echo = FALSE}
+R <- 1000
+Normal.dataset.n30mu10s1.resample <- numeric(R)
+Normal.dataset.n10mu10s1.resample <- numeric(R)
+#Normal.dataset.n30mu15s1.resample <- numeric(R)
+Exponential.dataset.n30lambda1.0.resample <- numeric(R)
+Exponential.dataset.n10lambda1.0.resample <- numeric(R)
+#Exponential.dataset.n30lambda0.25.resample <- numeric(R)
+
+############################################################
+x=Normal.dataset.n30mu10s1
+mean(x)
+for (i in 1:R) {
+  sample <- sample(x, size = length(x), replace = TRUE)
+  Normal.dataset.n30mu10s1.resample[i] = mean(sample)
+}
+
+par(mfrow = c(1,2))
+hist(Normal.dataset.n30mu10s1, main="Original dataset", xlab="Normal Dist, n=30, mu=10, sd=1")
+hist(Normal.dataset.n30mu10s1.resample, main="Bootstrap resampled", xlab="Normal Dist")
+print("Original dataset")
+describe(Normal.dataset.n30mu10s1)
+print("Resampled dataset")
+describe(Normal.dataset.n30mu10s1.resample)
+
+###########################################################
+x=Normal.dataset.n10mu10s1
+mean(x)
+for (i in 1:R) {
+  sample <- sample(x, size = length(x), replace = TRUE)
+  Normal.dataset.n10mu10s1.resample[i] = mean(sample)
+}
+
+par(mfrow = c(1,2))
+hist(Normal.dataset.n10mu10s1, main="Original dataset", xlab="Normal Dist, n=10, mu=10, sd=1")
+hist(Normal.dataset.n10mu10s1.resample, main="Bootstrap resampled", xlab="Normal Dist")
+print("Original dataset")
+describe(Normal.dataset.n10mu10s1)
+print("Resampled dataset")
+describe(Normal.dataset.n10mu10s1.resample)
+################################################################
+# x=Normal.dataset.n30mu15s1
+# mean(x)
+# for (i in 1:R) {
+#   sample <- sample(x, size = length(x), replace = TRUE)
+#   Normal.dataset.n30mu15s1.resample[i] = mean(sample)
+# }
+# 
+# par(mfrow = c(1,2))
+# hist(Normal.dataset.n30mu10s1, main="Original dataset", xlab ="Normal Dist, n=30, mu=15, sd=1")
+# hist(Normal.dataset.n30mu10s1.resample, main="Bootstrap resampled", xlab ="Normal Dist, n=30, mu=15, sd=1")
+# describe(Normal.dataset.n30mu15s1)
+# describe(Normal.dataset.n30mu15s1.resample)
+# 
+
+
+##############################################################
+##########################################################
+x=Exponential.dataset.n30lambda1.0
+resamplex = Exponential.dataset.n30lambda1.0.resample
+mean(x)
+for (i in 1:R) {
+  sample <- sample(x, size = length(x), replace = TRUE)
+  resamplex[i] = mean(sample)
+}
+
+par(mfrow = c(1,2))
+hist(x, main="Original dataset", xlab="Exponential, n=30, lambda = 1.0")
+hist(resamplex, main="Bootstrap resampled", xlab="Exponential")
+print("Original dataset")
+describe(x)
+print("Resampled dataset")
+describe(resamplex)
+
+##########################################################
+x=Exponential.dataset.n10lambda1.0
+resamplex = Exponential.dataset.n10lambda1.0.resample
+mean(x)
+for (i in 1:R) {
+  sample <- sample(x, size = length(x), replace = TRUE)
+  resamplex[i] = mean(sample)
+}
+
+par(mfrow = c(1,2))
+hist(x, main="Original dataset", xlab="Exponential, n=10, lambda = 1.0")
+hist(resamplex, main="Bootstrap resampled", xlab="Exponential")
+print("Original dataset")
+describe(x)
+print("Resampled dataset")
+describe(resamplex)
+
+
+
+```
+
+## Conclusion
+The bootstrap method can be used to create a sample distribution from small data sets that approximates a normal sample from the original population.
